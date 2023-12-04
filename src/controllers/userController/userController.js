@@ -1,86 +1,49 @@
-import ContactmeModel from "../../models/contactmeModel.js"
+import UserModel from "../../models/userModel.js"
+
+//crud de user
 
 
-const getAllContacts = async () =>{
+const getAllUsers = async () =>{
     try {
-        const contacts = await ContactmeModel.find({});
-        return [null, contacts];
-    } catch (error) {
-        console.error(error);
-        return [error.message, null];
-    }
-}
+        const users= await UserModel.find({});
+        users.sort((a, b) => (a.solicitudReactivacion === true && b.solicitudReactivacion === false) ? -1 : 1);
 
-const getContactsById = async (id) =>{
-    try {
-        const contact = await ContactmeModel.findById(id).exec();
-        return [null, contact];
-    } catch (error) {
-        console.error(error);
-        return [error.message, null];
-    }
-}
 
-const updateContact = async (id, firstName, lastName, email, phoneNumber, topic,message,answered,conctactDate) =>{
-    try {
-        const contact = await ContactmeModel.findById(id);
-
-        if (!entry) {
-            const error = "No record found with that ID.";
-            return [error, null];
-        }
-
-        contact.firstName = firstName || contact.firstName;
-        contact.lastName = lastName || contact.lastName;
-        contact.email = email || contact.email;
-        contact.phoneNumber = phoneNumber || contact.phoneNumber;
-        contact.topic = topic || contact.topic;
-        contact.message = message || contact.message;
-        contact.answered = answered || contact.answered;
-        contact.conctactDate=conctactDate || contact.conctactDate
-
-        await contact.save();
-
-        return [null, contact];
+        return [null, users];
     } catch (error) {
         console.error(error);
         return [error.message, null];
     }
 
-}
+};
 
-const removeContact = async (id) =>{
+const getUsersById = async (id)=> {
     try {
-        const contact = await ContactmeModel.findById(id);
-
-        if (!contact) {
-            const error = "No record found with that ID.";
-            return [error, null];
-        }
-
-        await contact.deleteOne();
-
-        return [null, contact];
+        const user= await UserModel.findById(id).exec();
+        return [null, user];
     } catch (error) {
         console.error(error);
         return [error.message, null];
     }
+    
 }
 
-const createContact = async (firstName, lastName, email, phoneNumber, topic,message) =>{
-
+const createUser = async (nombre, email, fechaNacimiento, password, estacionPref, categoria, cuentaDesactivada,rol) => {
     try {
-        const newContact = new ContactmeModel({
-            firstName: firstName,
-            lastName: lastName,
+        const newUser = new UserModel({
+            nombre: nombre,
             email: email,
-            phoneNumber: phoneNumber,
-            topic: topic,
-            message:message,
+            fechaNacimiento: fechaNacimiento,
+            password: password,
+            estacionPref: estacionPref,
+            categoria: categoria,
+            cuentaDesactivada: cuentaDesactivada,
+            rol:rol,
         });
 
-        const savedContact = await newContact.save();
-        return [null, savedContact];
+        const savedUser = await newUser.save();
+        
+        return [null, savedUser];
     } catch (error) {
         console.error(error);
         return [error.message, null];
@@ -89,13 +52,89 @@ const createContact = async (firstName, lastName, email, phoneNumber, topic,mess
 
 
 
+  const updateUser = async (id, nombre, email, fechaNacimiento, password, estacionPref, categoria, cuentaDesactivada,rol) => {
 
+    if (id === undefined) {
+        const error = "Tienes que especificar un ID válido";
+        return [error, null];
+    }
+
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            const error = "No se ha encontrado un usuario con el ID proporcionado.";
+            return [error, null];
+        }
+
+        // Verificar si el correo ya está en uso por otro usuario
+        const existingUser = await UserModel.findOne({ email: email, _id: { $ne: id } }); // $ne  es not equal en mongo
+        if (existingUser) {
+            const error = "El correo ya está en uso por otro usuario.";
+            return [error, null];
+        }
+
+        user.nombre = nombre;
+        user.email = email;
+        user.fechaNacimiento = fechaNacimiento;
+        if(password!==""){
+            user.password = password;
+        }else{
+            user.password = user.password;
+        }
+        
+        user.estacionPref = estacionPref;
+        user.categoria = categoria;
+        
+        if (cuentaDesactivada==="false") {
+            user.solicitudReactivacion = false;
+            user.cuentaDesactivada = cuentaDesactivada;
+        }
+        user.rol=rol;
+
+        await user.save();
+
+        return [null, user];
+    } catch (error) {
+        console.error(error);
+        return [error.message, null];
+    }
+};
+
+
+
+const removeUser = async (id) => {
+    try {
+        const user = await UserModel.findById(id);
+        
+        if (!user) {
+            const error = "No se ha encontrado ningún usuario con ese ID.";
+            return [error, null];
+        }
+
+
+        await user.deleteOne();
+
+        return [null, user];
+    } catch (error) {
+        console.error(error);
+        return [error.message, null];
+    }
+};
 
 
 export default {
-    getAllContacts,
-    getContactsById,
-    updateContact,
-    removeContact,
-    createContact
+    getAllUsers,
+    getUsersById,
+    updateUser,
+    removeUser,
+    createUser
 };
+
+export  {
+    getAllUsers,
+    getUsersById,
+    updateUser,
+    removeUser,
+    createUser
+}
