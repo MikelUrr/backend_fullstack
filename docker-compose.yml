@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  mongo_fullstack:
+    image: mongo
+    container_name: mongo_fullstack
+    ports:
+      - ${DB_PORT}:27017
+    volumes:
+      - ./data:/data/db
+
+  node:
+    build: .
+    container_name: node_fullstack
+    # restart: always
+    ports:
+      - ${APP_PORT}:3000
+    depends_on:
+      - mongo_fullstack
+    volumes:
+      - .:/app
+      - /app/node_modules

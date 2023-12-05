@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import userApiController from '../controllers/userController/userApiController.js';
+import {photoUpload} from "./../middlewares/multerConfig.js"
+
 
 
 const router = Router();

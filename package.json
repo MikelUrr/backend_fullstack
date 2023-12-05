@@ -1,0 +1,44 @@
+{
+  "name": "backend_nyc_guide",
+  "version": "1.0.0",
+  "description": "nyc guide backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --detectOpenHandles --forceExit",
+    "jsdoc": "jsdoc -r src -d docs -t node_modules/docdash"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.4",
+    "express-session": "^1.17.3",
+    "jsonwebtoken": "^9.0.2",
+    "marked": "^10.0.0",
+    "mongoose": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.6.3",
+    "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "pug": "^3.0.2",
+    "sequelize": "^6.35.0",
+    "tesseract.js": "^5.0.3",
+    "tesseract.js-core": "^5.0.0",
+    "text-from-image": "^1.1.1",
+    "translate": "^2.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.2"
+  }
+}

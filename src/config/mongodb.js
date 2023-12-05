@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const uri = `mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`;
 
 const connection = mongoose.connect(uri)
     .then(() => {

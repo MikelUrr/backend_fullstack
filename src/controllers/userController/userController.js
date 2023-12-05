@@ -27,7 +27,7 @@ const getUsersById = async (id)=> {
     
 }
 
-const createUser = async (firstName, lastName, email, password, phoneNumber, image) => {
+const createUser = async (firstName, lastName, email, password, phoneNumber, image,userActive, userType) => {
     try {
         const newUser = new UserModel({
             firstName: firstName,

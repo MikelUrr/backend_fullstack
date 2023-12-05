@@ -37,6 +37,10 @@ const houseSchema = new mongoose.Schema({
         type: String,
         
       },
+      amenities: {
+        type: [String],
+        
+      },
       price: {
         type: Number,
       },

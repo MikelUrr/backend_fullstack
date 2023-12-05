@@ -5,7 +5,7 @@ import cors from 'cors';
 import router from "./src/routes/router.js"
 
 
-const PORT = 3009;
+const PORT = 3000;
 dotenv.config();
 
 const sessionConfig = {
@@ -34,4 +34,4 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", router);
 
-app.listen(PORT, () => console.log("Servidor web en marcha en puerto 3009."));
+app.listen(PORT, () => console.log("Servidor web en marcha en puerto 3000."));
