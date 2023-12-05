@@ -1,12 +1,11 @@
 import UserModel from "../../models/userModel.js"
 
-//crud de user
 
 
 const getAllUsers = async () =>{
     try {
         const users= await UserModel.find({});
-        users.sort((a, b) => (a.solicitudReactivacion === true && b.solicitudReactivacion === false) ? -1 : 1);
+        users.sort((a, b) => (a.userAtive === false && b.userAtive === true) ? -1 : 1);
 
 
         return [null, users];
@@ -28,17 +27,17 @@ const getUsersById = async (id)=> {
     
 }
 
-const createUser = async (nombre, email, fechaNacimiento, password, estacionPref, categoria, cuentaDesactivada,rol) => {
+const createUser = async (firstName, lastName, email, password, phoneNumber, image) => {
     try {
         const newUser = new UserModel({
-            nombre: nombre,
+            firstName: firstName,
+            lastName: lastName,
             email: email,
-            fechaNacimiento: fechaNacimiento,
             password: password,
-            estacionPref: estacionPref,
-            categoria: categoria,
-            cuentaDesactivada: cuentaDesactivada,
-            rol:rol,
+            phoneNumber: phoneNumber,
+            image: image,
+            userActive: userActive,
+            userType: userType,
         });
 
         const savedUser = await newUser.save();
@@ -51,11 +50,9 @@ const createUser = async (nombre, email, fechaNacimiento, password, estacionPref
 };
 
 
-
-  const updateUser = async (id, nombre, email, fechaNacimiento, password, estacionPref, categoria, cuentaDesactivada,rol) => {
-
+const updateUser = async (id, firstName, lastName, email, password, phoneNumber, image, userActive, userType) => {
     if (id === undefined) {
-        const error = "Tienes que especificar un ID válido";
+        const error = "Invalid ID";
         return [error, null];
     }
 
@@ -63,35 +60,53 @@ const createUser = async (nombre, email, fechaNacimiento, password, estacionPref
         const user = await UserModel.findById(id);
         
         if (!user) {
-            const error = "No se ha encontrado un usuario con el ID proporcionado.";
+            const error = "User with the provided ID has not been found";
             return [error, null];
         }
 
-        // Verificar si el correo ya está en uso por otro usuario
-        const existingUser = await UserModel.findOne({ email: email, _id: { $ne: id } }); // $ne  es not equal en mongo
+    
+        const existingUser = await UserModel.findOne({ email: email, _id: { $ne: id } });
         if (existingUser) {
-            const error = "El correo ya está en uso por otro usuario.";
+            const error = "Email is already in use by another user.";
             return [error, null];
         }
-
-        user.nombre = nombre;
+     if (firstName!== ""){
+        user.firstName = firstName;
+        
+     } else {
+        user.firstName =user.firstName
+     }
+        
+        user.lastName = lastName;
         user.email = email;
-        user.fechaNacimiento = fechaNacimiento;
-        if(password!==""){
+
+        if (password !== "") {
             user.password = password;
-        }else{
+        } else {
             user.password = user.password;
         }
-        
-        user.estacionPref = estacionPref;
-        user.categoria = categoria;
-        
-        if (cuentaDesactivada==="false") {
-            user.solicitudReactivacion = false;
-            user.cuentaDesactivada = cuentaDesactivada;
-        }
-        user.rol=rol;
+        if (phoneNumber !== undefined){
+        user.phoneNumber = phoneNumber;
+    }  else {
+        user.phoneNumber =user.phoneNumber
+    }
+     if (image !== ""){
+        user.image = image;
+     } else {
+        user.image=user.image
+     }
 
+     if (userActive !== undefined){
+        user.userActive = userActive;
+     } else {
+        user.userActive= user.userActive
+     }
+        if (userType != [""]){
+            user.userType = userType;
+        } else {
+            user.userType =  user.userType
+        }
+        
         await user.save();
 
         return [null, user];
@@ -102,13 +117,12 @@ const createUser = async (nombre, email, fechaNacimiento, password, estacionPref
 };
 
 
-
 const removeUser = async (id) => {
     try {
         const user = await UserModel.findById(id);
         
         if (!user) {
-            const error = "No se ha encontrado ningún usuario con ese ID.";
+            const error = "No user found with that ID";
             return [error, null];
         }
 

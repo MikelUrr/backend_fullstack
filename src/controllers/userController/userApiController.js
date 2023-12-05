@@ -1,23 +1,24 @@
-import contactmeController from "./contactmeController.js";
+import userController from "./contactmeController.js";
+import bcrypt from "bcrypt";
 
-const  getAllContacts = async (req, res) =>{
+const  getAllUsers = async (req, res) =>{
     try {
         const errorMessage = req.query.error;
-        const [error, contacts] = await contactmeController.getAllContacts();
+        const [error, users] = await userController.getAllUsers();
         if (error) {
             return res.status(500).json({ error: error });
         }
-        res.status(200).json({ contacts, errorMessage, session: req.session });
+        res.status(200).json({ users, errorMessage, session: req.session });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error. Please try again later." });
     }
 }
 
-const getContactsById = async (req, res) => {
+const getusersById = async (req, res) => {
     const id = req.params.id;
     try {
-        const [error, contact] = await contactmeController.getContactsById(id);
+        const [error, user] = await userController.getUsersById(id);
         if (error) {
             return res.status(404).json({ error: error });
         }
@@ -29,35 +30,49 @@ const getContactsById = async (req, res) => {
 }
 
 
-const updateContact = async (req,res) =>{
-
-    const { id, firstName, lastName, email, phoneNumber, topic, message, answered, conctactDate } = req.body;
-
+const updateUser = async (req, res) => {
+    const id = req.params.id;
+    const { firstName, lastName, email, password, confirmPassword, phoneNumber, image, userActive, userType } = req.body;
+    
     try {
-        const [error, contact] = await contactmeController.updateContact(id, firstName, lastName, email, phoneNumber, topic, message, answered, conctactDate);
-
-        if (error) {
-            return res.status(404).json({ error: "No record found with that ID." });
+        const image = req.file ? `/images/blog/${req.file.filename}` : undefined;
+        if (password && password !== confirmPassword) {
+            return res.status(400).json({ error: "Password and confirmation do not match." });
         }
 
-        return res.status(200).json({ success: true, contact });
+        let error;
+        let user;
+
+        if (password === "" || confirmPassword === "") {
+            [error, user] = await userController.updateUser(id, firstName, lastName, email, password, phoneNumber, image, userActive, userType);
+        } else {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            [error, user] = await userController.updateUser(id, firstName, lastName, email, hashedPassword, phoneNumber, image, userActive, userType);
+        }
+
+        if (error) {
+            return res.status(400).json({ error });
+        }
+
+        res.status(200).json({ message: "User updated successfully", user });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Internal server error. Please try again later." });
+        return res.status(500).json({ error: "EInternal server error. Please try again later." });
     }
-}
+};
 
-const removeContact = async (req, res) => {
+
+const removeUser = async (req, res) => {
     const { id } = req.body;
 
     try {
-        const [error, contact] = await contactmeController.removeContact(id);
+        const [error, user] = await userController.removeUser(id);
 
         if (error) {
             return res.status(404).json({ error: "No record found with that ID." });
         }
 
-        return res.status(200).json({ success: true, contact });
+        return res.status(200).json({ success: true, user });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Internal server error. Please try again later." });
@@ -65,69 +80,43 @@ const removeContact = async (req, res) => {
 };
 
 
-const createContact = async (firstName, lastName, email, phoneNumber, topic, message) => {
+const createUser = async (req, res) => {
+    console.log(req.body);
+    const { firstName, lastName, email, password, confirmPassword, phoneNumber, userActive, userType } = req.body;
+    let image = null;
+
+       
     try {
-        // Construct your message with the contact information
-        const telegramMessage = `
-            New Contact:
-            Name: ${firstName} ${lastName}
-            Email: ${email}
-            Phone Number: ${phoneNumber}
-            Topic: ${topic}
-            Message: ${message}
-        `;
-
-        // Send message to Telegram
-        const telegramMessageSent = await sendTelegramMessage(telegramMessage);
-
-        if (telegramMessageSent) {
-            
-            const [error,contact] = await contactmeController.createContact(firstName, lastName, email, phoneNumber, topic, message);
-            res.status(201).json({ contact });
+        if (req.file) {
+            image = "/img/profile/" + req.file.filename;
         } else {
-            throw new Error('Failed to send Telegram message.');
+            image = "/img/profile/nophoto.png"
         }
+
+        if (password && password !== confirmPassword) {
+            return res.status(400).json({ error: "La contraseña y la confirmación no coinciden." });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [error, user] = await userController.createUser(firstName, lastName, email, hashedPassword, phoneNumber, image, userActive, userType);
+
+        if (error) {
+            return res.status(400).json({ error });
+        }
+
+        res.status(201).json({ message: "User created successfully", user });
     } catch (error) {
         console.error(error);
-        res.status(400).json({ error: error.message });
+        return res.status(500).json({ error: "Internal server error. Please try again later." });
     }
 };
 
-const sendTelegramMessage = async (message) => {
-    try {
-        const telegramBotToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-        const chatId = 'YOUR_TELEGRAM_CHAT_ID';
-        const apiUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-            }),
-        });
-
-        const responseData = await response.json();
-
-        if (!responseData.ok) {
-            throw new Error(responseData.description);
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Error sending Telegram message:', error.message);
-        return false;
-    }
-};
 
 
 export default {
-    getAllContacts,
-    getContactsById,
-    updateContact,
-    removeContact,
-    createContact
+    getAllUsers,
+    getusersById,
+    updateUser,
+    removeUser,
+    createUser
 };
