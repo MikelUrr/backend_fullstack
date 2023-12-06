@@ -25,7 +25,7 @@ const getusersById = async (req, res) => {
         if (error) {
             return res.status(404).json({ error: error });
         }
-        res.status(200).json({ contact });
+        res.status(200).json({ user });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error. Please try again later." });
@@ -88,7 +88,7 @@ const removeUser = async (req, res) => {
 
 
 const createUser = async (req, res) => {
-    console.log(req.body);
+   
     const { firstName, lastName, email, password, confirmPassword, phoneNumber, userActive, userType } = req.body;
     
     try {
