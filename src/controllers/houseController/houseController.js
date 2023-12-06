@@ -5,9 +5,7 @@ import houseModel from "./../../models/houseModel.js"
 const getAllHouses = async () => {
     try {
         const houses = await houseModel.find({});
-        users.sort((a, b) => (a.userAtive === false && b.userAtive === true) ? -1 : 1);
-
-
+        
         return [null, houses];
     } catch (error) {
         console.error(error);
@@ -18,7 +16,7 @@ const getAllHouses = async () => {
 
 const getHousesById = async (id) => {
     try {
-        const house = await houseModel.findById(id).exec();
+        const house = await houseModel.findById(id);
         return [null, house];
     } catch (error) {
         console.error(error);
@@ -30,7 +28,7 @@ const getHousesById = async (id) => {
 
 const getHousesByUserId = async (userId) => {
     try {
-        const houses = await houseModel.find({ userId: userId }).exec();
+        const houses = await houseModel.find({ userId: userId });
         return [null, houses];
     } catch (error) {
         console.error(error);

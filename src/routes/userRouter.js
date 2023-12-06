@@ -29,4 +29,8 @@ router.delete('/:id/delete', (req, res) => {
     userApiController.getAllUsers(req, res);
   });
 
+  router.get('/houses/:id', (req, res) => {
+    userApiController.getHousesByUserId(req, res);
+  });
+
   export default router;
