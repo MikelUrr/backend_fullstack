@@ -1,7 +1,25 @@
 import userController from "./userController.js";
+import houseController from "./../houseController/houseController.js"
 import bcrypt from "bcrypt";
 import path from 'path';
 import fs from 'fs';
+
+
+
+const getHousesByUserId = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [error, house] = await houseController.getHousesByUserId(id);
+        if (error) {
+            return res.status(404).json({ error: error });
+        }
+        res.status(200).json({ house });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error. Please try again later." });
+    }
+}
+
 
 const  getAllUsers = async (req, res) =>{
     try {
@@ -129,5 +147,6 @@ export default {
     getusersById,
     updateUser,
     removeUser,
-    createUser
+    createUser,
+    getHousesByUserId
 };

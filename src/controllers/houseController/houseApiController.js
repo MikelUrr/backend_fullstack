@@ -30,6 +30,7 @@ const getHousesById = async (req, res) => {
     }
 }
 
+
 const updateHouse = async (req, res) => {
     const id = req.params.id;
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
@@ -87,3 +88,10 @@ const createHouse = async (req, res) => {
     }
 };
 
+export default {
+    getAllHouses,
+    getHousesById,
+    createHouse,
+    updateHouse,
+    removeHouse
+}
