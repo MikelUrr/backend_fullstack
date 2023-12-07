@@ -8,7 +8,7 @@ import router from "./src/routes/router.js"
 const PORT = 3000;
 dotenv.config();
 
-const sessionConfig = {
+/* const sessionConfig = {
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -17,10 +17,10 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60
     }
 };
-
+ */
 const app = express();
 
-app.use(session(sessionConfig));
+/* app.use(session(sessionConfig)); */
 
 
 app.use(cors());

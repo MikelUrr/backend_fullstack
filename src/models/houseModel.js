@@ -5,7 +5,7 @@ const houseSchema = new mongoose.Schema({
 
     title: {
         type: String,
-        
+        required: true,
       },
 
       description: {
@@ -47,6 +47,7 @@ const houseSchema = new mongoose.Schema({
       userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user', 
+        required: true,
     },
 
 

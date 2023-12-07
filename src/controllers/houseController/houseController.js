@@ -82,22 +82,18 @@ const updateHouse = async (id, title, description, imageSrc, category, roomCount
             return [error, null];
         }
 
-        if (title !== "") {
-            house.title = title;
-        } else {
-            house.title = house.title;
-        }
-
-        house.description = description;
-        house.imageSrc = imageSrc;
-        house.category = category;
-        house.roomCount = roomCount;
-        house.bathroomCount = bathroomCount;
-        house.guestCount = guestCount;
-        house.locationValue = locationValue;
-        house.amenities = amenities;
-        house.price = price;
-        house.userId = userId;
+      
+        house.title = title || house.title
+        house.description = description || house.description;
+        house.imageSrc = imageSrc || house.imageSrc;
+        house.category = category || house.category;
+        house.roomCount = roomCount || house.roomCount;
+        house.bathroomCount = bathroomCount || house.bathroomCount;
+        house.guestCount = guestCount || house.guestCount;
+        house.locationValue = locationValue || house.locationValue;
+        house.amenities = amenities || house.amenities;
+        house.price = price || house.price;
+        house.userId = userId || house.userId;
 
         await house.save();
 
