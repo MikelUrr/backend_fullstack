@@ -2,54 +2,67 @@ import reservationsController from "./reservationsController.js";
 import houseController from "../houseController/houseController.js";
 
 const requestReservation = async (req, res) => {
-
-    const { startDate, endDate, guestCount, location } = req.query;
-
+    const startDate = new Date(req.query.startDate);
+    const endDate = new Date(req.query.endDate);
+    const guestCount = parseInt(req.query.guestCount, 10);
+    const location= req.query.location
+    const [lat, lon] = location.split(",").map(coord => parseFloat(coord.trim()));
+  console.log ("holaaaaa", req.query, "locationnnnn",location)
     const [error, overlappingReservations] = await reservationsController.getReservationsByDateRange(startDate, endDate);
-
+  
     const [error1, houses] = await houseController.getAllHouses();
-
-    const availableHouses = houses.filter(house => {
-        const isHouseAvailable = !overlappingReservations.some(reservation => reservation.houseId.equals(house._id));
-        const isGuestCountValid = house.guestCount >= guestCount;
-
-        return isHouseAvailable && isGuestCountValid;
+  
+    const availableHouses = houses.filter((house) => {
+      const isHouseAvailable = !overlappingReservations.some((reservation) => reservation.houseId.equals(house._id));
+      const isGuestCountValid = house.guestCount >= guestCount;
+  
+      return isHouseAvailable && isGuestCountValid;
     });
-
-
+  
     const maxdist = 20;
-    const [lat, lon, city] = location.splite(",")
-
-    const resultHouses = availableHouses.filter(house => {
-        let distancia = calcularDistancia(house.locationValue.lat, house.locationValue.lon, lat, lon);
-        return distancia <= maxdist;
-    });
-
     
-    const mes= startDate.getMonth() + 1;
-    const finalResult= resultHouses.forEach(element => {
-       
-
-    element.days=calculateDiffBetweenDays (startDate,endDate);
     
-    if (mes === 8 ) {
-        element.price= (element.price*0.5)+element.price
-
-    } else if (mes === 7) {
-        element.price= (element.price*0.25)+element.price
-    }
-
-    if(element.days>=15) {
-        element.price= element.price-(element.price*0.10)
-    }
+  
+    const resultHouses = availableHouses.filter((house) => {
         
-        
+        const locationArray = JSON.parse(house.locationValue);
+        console.log("estoy aquiiii",locationArray)
+        const distancia = calcularDistancia(locationArray[0], locationArray[1], lat, lon);
+      return distancia <= maxdist;
     });
     
-
-    res.status(200).json({ resultHouses, errorMessage, session: req.session });
-}
-
+    const month = new Date(startDate).getMonth() + 1; 
+  
+    const finalResult = await Promise.all(resultHouses.map(async (element) => {
+        const days = calculateDiffBetweenDays(startDate, endDate);
+        element.days = days;
+        console.log("diaaaas", element.days);
+    
+        let price = element.price * days;
+    
+        const month = new Date(startDate).getMonth() + 1;
+    
+        if (month === 8) {
+            price = price * 1.5;
+        } else if (month === 7) {
+            price = price * 1.25;
+        }
+    
+        if (days >= 15) {
+            price = price - price * 0.1;
+        }
+    
+        element.price = price;
+    
+        console.log("todoooo", element);
+        return element;
+    }));
+    
+    console.log("Final Result", finalResult);
+    
+  
+    res.status(200).json({ Result: finalResult, session: req.session });
+  };
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     const radioTierra = 6371; // Radio de la Tierra en kilómetros
@@ -66,18 +79,10 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
 
 
 const calculateDiffBetweenDays = (startDate, endDate) => {
-
-    var d1 = new Date("08/14/2020");
-    var d2 = new Date("09/14/2020");
-
-    var diff = d2.getTime() - d1.getTime();
-
-    var daydiff = diff / (1000 * 60 * 60 * 24);
-
-    
+    const diff = new Date(endDate) - new Date(startDate);
+    const daydiff = diff / (1000 * 60 * 60 * 24);
     return daydiff;
-}
-
+};
 
 export default {
     requestReservation

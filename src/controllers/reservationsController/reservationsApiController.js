@@ -15,6 +15,8 @@ const getAllReservations = async (req, res) => {
     }
 };
 
+
+
 const getReservationById = async (req, res) => {
     const id = req.params.id;
     try {

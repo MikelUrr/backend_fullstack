@@ -86,7 +86,9 @@ const removeHouse = async (req, res) => {
 const createHouse = async (req, res) => {
     
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-
+    if (!validateAmenities(amenities)) {
+        return res.status(400).json({ error: "Invalid amenities provided." });
+      }
     try {
        
         const [error, house] = await houseController.createHouse(title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
@@ -101,6 +103,18 @@ const createHouse = async (req, res) => {
         return res.status(500).json({ error: "Internal server error. Please try again later." });
     }
 };
+
+const validateAmenities = (amenities) => {
+    const validAmenities = ['wifi', 'tv', 'swimming pool', 'bbq', 'garden', 'kitchen', 'parking', 'air conditioner', 'washer', 'hairdryer', 'iron', 'terrace'];
+  
+    for (const amenity of amenities) {
+      if (!validAmenities.includes(amenity)) {
+        return false; 
+      }
+    }
+  
+    return true; 
+  };
 
 export default {
     getAllHouses,
