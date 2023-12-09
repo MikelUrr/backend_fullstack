@@ -6,6 +6,7 @@ const requestReservation = async (req, res) => {
     const endDate = new Date(req.query.endDate);
     const guestCount = parseInt(req.query.guestCount, 10);
     const location= req.query.location
+    const id= req.query.id
     const [lat, lon] = location.split(",").map(coord => parseFloat(coord.trim()));
   console.log ("holaaaaa", req.query, "locationnnnn",location)
     const [error, overlappingReservations] = await reservationsController.getReservationsByDateRange(startDate, endDate);
@@ -15,8 +16,8 @@ const requestReservation = async (req, res) => {
     const availableHouses = houses.filter((house) => {
       const isHouseAvailable = !overlappingReservations.some((reservation) => reservation.houseId.equals(house._id));
       const isGuestCountValid = house.guestCount >= guestCount;
-  
-      return isHouseAvailable && isGuestCountValid;
+  const isUserid= house.userId!==id;
+      return isHouseAvailable && isGuestCountValid&&isUserid;
     });
   
     const maxdist = 20;

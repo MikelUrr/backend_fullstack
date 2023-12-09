@@ -13,7 +13,7 @@ router.post('/',  (req, res) => {
   });
 
 
-router.delete('/:id/delete', (req, res) => {
+router.delete('/:id', (req, res) => {
     houseApiController.removeHouse(req, res);
   });
 

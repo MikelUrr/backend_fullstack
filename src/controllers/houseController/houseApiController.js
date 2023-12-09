@@ -1,4 +1,5 @@
 import houseController from "./houseController.js";
+import userController from "./../userController/userController.js"
 
 
 const  getAllHouses = async (req, res) =>{
@@ -67,7 +68,8 @@ const updateHouse = async (req, res) => {
 
 
 const removeHouse = async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
+    
 
     try {
         const [error, house] = await houseController.removeHouse(id);
@@ -86,15 +88,24 @@ const removeHouse = async (req, res) => {
 const createHouse = async (req, res) => {
     
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
+   
     if (!validateAmenities(amenities)) {
+        console.log(validateAmenities(amenities))
         return res.status(400).json({ error: "Invalid amenities provided." });
       }
     try {
        
-        const [error, house] = await houseController.createHouse(title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
+       const [error, house] = await houseController.createHouse(title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
 
         if (error) {
             return res.status(400).json({ error });
+        }
+        if (house){ 
+            const userType="guest, owner";
+            
+            const [error, user]= await userController.updateUserType(userId,userType)
+
+            user? console.log ("okkk", user.userType): console.log("error")
         }
 
         res.status(201).json({ message: "House created successfully", house });
@@ -104,18 +115,22 @@ const createHouse = async (req, res) => {
     }
 };
 
-const validateAmenities = (amenities) => {
+const validateAmenities = (amenitiesString) => {
     const validAmenities = ['wifi', 'tv', 'swimming pool', 'bbq', 'garden', 'kitchen', 'parking', 'air conditioner', 'washer', 'hairdryer', 'iron', 'terrace'];
-  
-    for (const amenity of amenities) {
-      if (!validAmenities.includes(amenity)) {
-        return false; 
-      }
-    }
-  
-    return true; 
-  };
 
+    
+    const amenitiesArray = amenitiesString.split(',');
+
+    for (const amenity of amenitiesArray) {
+        const lowerCaseAmenity = amenity.trim().toLowerCase();  
+        if (!validAmenities.includes(lowerCaseAmenity)) {
+            
+            return false;
+        }
+    }
+
+    return true;
+};
 export default {
     getAllHouses,
     getHousesById,

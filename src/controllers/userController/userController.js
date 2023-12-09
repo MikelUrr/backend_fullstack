@@ -57,54 +57,48 @@ const updateUser = async (id, firstName, lastName, email, password, phoneNumber,
     }
 
     try {
-        const user = await UserModel.findById(id);
-        
-        if (!user) {
-            const error = "User with the provided ID has not been found";
-            return [error, null];
-        }
-
+      
     
         const existingUser = await UserModel.findOne({ email: email, _id: { $ne: id } });
         if (existingUser) {
             const error = "Email is already in use by another user.";
             return [error, null];
         }
-     if (firstName!== ""){
-        user.firstName = firstName;
+     if (!firstName){
+        existingUser.firstName = firstName;
         
      } else {
-        user.firstName =user.firstName
+        existingUser.firstName =existingUser.firstName
      }
         
-        user.lastName = lastName;
-        user.email = email;
+     existingUser.lastName = lastName;
+     existingUser.email = email;
 
         if (password !== "") {
-            user.password = password;
+            existingUser.password = password;
         } else {
-            user.password = user.password;
+            existingUser.password = existingUser.password;
         }
         if (phoneNumber !== undefined){
-        user.phoneNumber = phoneNumber;
+            existingUser.phoneNumber = phoneNumber;
     }  else {
-        user.phoneNumber =user.phoneNumber
+        existingUser.phoneNumber =existingUser.phoneNumber
     }
      if (image !== ""){
-        user.image = image;
+        existingUser.image = image;
      } else {
-        user.image=user.image
+        existingUser.image=user.image
      }
 
      if (userActive !== undefined){
-        user.userActive = userActive;
+        existingUser.userActive = userActive;
      } else {
-        user.userActive= user.userActive
+        existingUser.userActive= user.userActive
      }
         if (userType != [""]){
-            user.userType = userType;
+            existingUser.userType = userType;
         } else {
-            user.userType =  user.userType
+            existingUser.userType =  user.userType
         }
         
         await user.save();
@@ -135,6 +129,31 @@ const removeUser = async (id) => {
         return [error.message, null];
     }
 };
+const updateUserType = async (id, userType) => {
+    if (id === undefined) {
+        return ["Invalid ID", null];
+    }
+
+    try {
+        const existingUser = await UserModel.findById(id);
+
+        if (!existingUser) {
+            return ["No user found with that ID", null];
+        }
+
+       
+        if (userType !== undefined && userType.length !== 0) {
+            existingUser.userType = userType;
+        }
+
+        await existingUser.save();
+
+        return [null, existingUser];
+    } catch (error) {
+        console.error(error);
+        return [error.message, null];
+    }
+};
 
 
 
@@ -143,7 +162,8 @@ export default {
     getUsersById,
     updateUser,
     removeUser,
-    createUser
+    createUser,
+    updateUserType
 };
 
 export  {
@@ -151,5 +171,6 @@ export  {
     getUsersById,
     updateUser,
     removeUser,
-    createUser
+    createUser,
+    updateUserType
 }

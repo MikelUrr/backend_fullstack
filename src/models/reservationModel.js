@@ -4,20 +4,25 @@ import mongodb from "../config/mongodb.js";
 const reservationSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user', 
+        ref: 'user',
+        required: true,
     },
     houseId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'house', 
+        ref: 'house',
+        required: true,
     },
     startDate: {
         type: Date,
+        required: true,
       },
     endDate: {
         type: Date,
+        required: true,
       },
       price: {
         type: Number,
+        required: true,
       },
       createdAt: {
         type: Date,
