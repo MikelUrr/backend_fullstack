@@ -8,7 +8,7 @@ const requestReservation = async (req, res) => {
     const location= req.query.location
     const id= req.query.id
     const [lat, lon] = location.split(",").map(coord => parseFloat(coord.trim()));
-  console.log ("holaaaaa", req.query, "locationnnnn",location)
+
     const [error, overlappingReservations] = await reservationsController.getReservationsByDateRange(startDate, endDate);
   
     const [error1, houses] = await houseController.getAllHouses();
@@ -19,25 +19,35 @@ const requestReservation = async (req, res) => {
   const isUserid= house.userId!==id;
       return isHouseAvailable && isGuestCountValid&&isUserid;
     });
-  
+ 
     const maxdist = 20;
     
     
   
     const resultHouses = availableHouses.filter((house) => {
+        console.log(house);
+        const locationArray = house.locationValue.split(',').map(coord => parseFloat(coord.trim()));
+      
+    
         
-        const locationArray = JSON.parse(house.locationValue);
-        console.log("estoy aquiiii",locationArray)
-        const distancia = calcularDistancia(locationArray[0], locationArray[1], lat, lon);
-      return distancia <= maxdist;
+        let lathouse = locationArray[0];
+        let lonhouse = locationArray[1];
+       
+        const distancia = calcularDistancia(lathouse, lonhouse, lat, lon);
+        
+        return distancia <= maxdist;
     });
     
     const month = new Date(startDate).getMonth() + 1; 
   
-    const finalResult = await Promise.all(resultHouses.map(async (element) => {
+    const finalResult = await Promise.all(resultHouses.map(async (originalelement) => {
+        
         const days = calculateDiffBetweenDays(startDate, endDate);
+        const element=   { ...originalelement._doc }; 
         element.days = days;
         console.log("diaaaas", element.days);
+        
+        
     
         let price = element.price * days;
     

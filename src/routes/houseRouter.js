@@ -32,10 +32,8 @@ router.delete('/:id', (req, res) => {
   router.get('/user/:id', (req, res) => {
     houseApiController.getHousesByUserId(req, res);
   });
-  router.get('/landing', (req, res) => {
-    houseApiController.getRandomHouses(req, res);
-  });
 
+ 
   
 
 
