@@ -17,6 +17,32 @@ const  getAllHouses = async (req, res) =>{
     }
 }
 
+
+const getRandomHouses = async (req, res) => {
+    try {
+        const errorMessage = req.query.error;
+        const [error, houses] = await houseController.getAllHouses();
+        if (error) {
+            return res.status(500).json({ error: error });
+        }
+
+        // Obtén el número específico de elementos aleatorios
+        const numberOfRandomHouses = 2; // Puedes ajustar este número según tus necesidades
+        const randomHouses = getRandomElements(houses, numberOfRandomHouses);
+
+        res.status(200).json({ houses: randomHouses, errorMessage, session: req.session });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error. Please try again later." });
+    }
+}
+
+// Función para obtener elementos aleatorios de un array
+function getRandomElements(array, numberOfElements) {
+    const shuffledArray = array.sort(() => Math.random() - 0.5);
+    return shuffledArray.slice(0, numberOfElements);
+}
+
 const getHousesById = async (req, res) => {
     const id = req.params.id;
     try {
@@ -88,11 +114,12 @@ const removeHouse = async (req, res) => {
 const createHouse = async (req, res) => {
     
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-   
+    console.log("MENITIES BRO",amenities)
+   if (amenities!== undefined){
     if (!validateAmenities(amenities)) {
         console.log(validateAmenities(amenities))
         return res.status(400).json({ error: "Invalid amenities provided." });
-      }
+      }}
     try {
        
        const [error, house] = await houseController.createHouse(title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
@@ -137,5 +164,6 @@ export default {
     createHouse,
     updateHouse,
     removeHouse,
-    getHousesByUserId
+    getHousesByUserId,
+    getRandomHouses
 }

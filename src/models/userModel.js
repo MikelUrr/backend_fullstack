@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       
     },
-    userAtive: {
+    userActive: {
         type: Boolean,
         default: true,
     },
