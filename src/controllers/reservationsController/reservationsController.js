@@ -47,6 +47,16 @@ const getReservationsByUserId = async (userId) => {
         return [error.message, null];
     }
 };
+const getReservationsByhouseId = async (houseId) => {
+    try {
+        const reservations = await reservationModel.find({ houseId: houseId }).populate('userId').populate('houseId').exec();
+        return [null, reservations];
+    } catch (error) {
+        console.error(error);
+        return [error.message, null];
+    }
+};
+
 
 const createReservation = async (userId, houseId, startDate, endDate, price) => {
     try {
@@ -121,5 +131,6 @@ export default {
     createReservation,
     updateReservation,
     removeReservation,
-    getReservationsByDateRange
+    getReservationsByDateRange,
+    getReservationsByhouseId,
 };

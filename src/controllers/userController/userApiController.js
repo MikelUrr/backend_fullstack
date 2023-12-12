@@ -8,6 +8,7 @@ import fs from 'fs';
 
 const getHousesByUserId = async (req, res) => {
     const id = req.params.id;
+    console.log(id)
     try {
         const [error, house] = await houseController.getHousesByUserId(id);
         if (error) {

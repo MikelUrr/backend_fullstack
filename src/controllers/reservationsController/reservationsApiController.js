@@ -31,6 +31,33 @@ const getReservationById = async (req, res) => {
     }
 };
 
+const getReservationByuserId = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [error, reservation] = await reservationsController.getReservationsByUserId(id);
+        if (error) {
+            return res.status(404).json({ error: error });
+        }
+        res.status(200).json({ reservation });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error. Please try again later." });
+    }
+};
+const getReservationByhouseId = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [error, reservation] = await reservationsController.getReservationsByhouseId(id);
+        if (error) {
+            return res.status(404).json({ error: error });
+        }
+        res.status(200).json({ reservation });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error. Please try again later." });
+    }
+};
+
 const updateReservation = async (req, res) => {
     const id = req.params.id;
     const { userId, houseId, startDate, endDate, price } = req.body;
@@ -70,8 +97,9 @@ const createReservation = async (req, res) => {
     const { userId, houseId, startDate, endDate, price } = req.body;
 
     try {
+        if (startDate>endDate){return res.status(400).json({ message: "Startdate is greater than endDate" });}
         const [error, reservation] = await reservationsController.createReservation(userId, houseId, startDate, endDate, price);
-
+   
         if (error) {
             return res.status(400).json({ error });
         }
@@ -88,5 +116,7 @@ export default {
     getReservationById,
     updateReservation,
     removeReservation,
-    createReservation
+    createReservation,
+    getReservationByuserId,
+    getReservationByhouseId
 };
