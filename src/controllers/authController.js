@@ -8,6 +8,7 @@ dotenv.config();
 const login = async (req, res) => {
     try {
         const { email, password } = req.body; // Change from username to email
+        
         const oldUser = await UserModel.findOne({ email }); // Change here
         if (!oldUser) {
             res.status(404).send("User does not exist");

@@ -27,5 +27,7 @@ router.delete('/:id/delete', (req, res) => {
     reservationsApiController.getAllReservations(req, res);
   });
 
+  
+
 
   export default router;

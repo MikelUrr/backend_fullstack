@@ -13,6 +13,11 @@ const router = Router();
     houseApiController.getRandomHouses(req, res);
   });
 
+
+  router.get('/cities', (req, res) => {
+    houseApiController.getRandomHouses(req, res);
+  });
+
   
 
 
