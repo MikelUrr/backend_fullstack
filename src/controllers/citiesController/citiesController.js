@@ -1,11 +1,11 @@
-import UserModel from "../../models/userModel.js"
+import citiesModel from "../../models/citiesModel.js"
 
 
 const getApiCities = async (req, res) => {
-    const busqueda = req.quyery.value;
-    console.log(value)
+    const busqueda = req.query.value;
+    console.log(busqueda)
     try {
-        const [error, cities] = await houseController.getCities(busqueda);
+        const [error, cities] = await getCities(busqueda);
         if (error) {
             return res.status(404).json({ error: error });
         }
@@ -20,11 +20,17 @@ const getApiCities = async (req, res) => {
 
 const getCities = async (busqueda) =>{
     try {
-        const cities= await UserModel.find({ name: new RegExp(busqueda, 'i') });
-        const resultcities=cities.sort((a, b) => (a.pop === false && b.pop === true) ? -1 : 1);
+        
+        const cities= await citiesModel.find({ name: new RegExp(busqueda, 'i') });
+        console.log(typeof cities[0].pop)
+        const resultCities = cities.sort((a, b) => {
+            const popA = Number(a.pop);
+            const popB = Number(b.pop);
+            return popB - popA;
+          });
 
 
-        return [null, resultcities];
+        return [null, resultCities];
     } catch (error) {
         console.error(error);
         return [error.message, null];
@@ -34,4 +40,4 @@ const getCities = async (busqueda) =>{
 
 
 
-export default getApiCities;
+export  {getApiCities};

@@ -40,6 +40,6 @@ const citiesSchema = new mongoose.Schema({
 
 })
 
-const citiesModel = mongoose.model('house', citiesSchema);
+const citiesModel = mongoose.model('city', citiesSchema);
   
- export default houseModel;
+ export default citiesModel;
