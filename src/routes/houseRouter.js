@@ -8,28 +8,28 @@ const router = Router();
 
 
 
-router.post('/',  (req, res) => {
+router.post('/', isAuthenticatedApi, (req, res) => {
     houseApiController.createHouse(req, res);
   });
 
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id',isAuthenticatedApi,(req, res) => {
     houseApiController.removeHouse(req, res);
   });
 
-  router.put('/:id', (req, res) => {
+  router.put('/:id', isAuthenticatedApi,(req, res) => {
     houseApiController.updateHouse(req, res);
   });
 
-  router.get('/:id', (req, res) => {
+  router.get('/:id', isAuthenticatedApi,(req, res) => {
     houseApiController.getHousesById(req, res);
   });
 
-  router.get('/', (req, res) => {
+  router.get('/', isAuthenticatedApi,(req, res) => {
     houseApiController.getAllHouses(req, res);
   });
 
-  router.get('/user/:id', (req, res) => {
+  router.get('/user/:id', isAuthenticatedApi,(req, res) => {
     houseApiController.getHousesByUserId(req, res);
   });
 
