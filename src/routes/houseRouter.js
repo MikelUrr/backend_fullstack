@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import houseApiController from '../controllers/houseController/houseApiController.js';
-
+import {isAuthenticatedApi} from '../middlewares/authMiddleware.js';
 
 
 
