@@ -18,21 +18,16 @@ const getApiCities = async (req, res) => {
 
 
 
-const getCities = async (busqueda) =>{
+const getCities = async (busqueda) => {
     try {
-
-        const cities = await citiesModel.find({ name: new RegExp(^${busqueda}, 'i') }).sort('pop').limit(25)
-
+        const regexPattern = new RegExp(`^${busqueda}`, 'i');
+        const cities = await citiesModel.find({ name: regexPattern }).sort('-pop').limit(25);
         return [null, cities];
     } catch (error) {
         console.error(error);
         return [error.message, null];
     }
-
- 
-
 };
-
 
 
 export  {getApiCities};
