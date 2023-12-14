@@ -1,6 +1,7 @@
 import houseController from "./houseController.js";
 import userController from "./../userController/userController.js"
-
+import path from 'path';
+import fs from 'fs';
 
 const  getAllHouses = async (req, res) =>{
     try {
@@ -75,11 +76,38 @@ const getHousesByUserId = async (req, res) => {
 const updateHouse = async (req, res) => {
     const id = req.params.id;
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-
+    if (amenities!== undefined){
+        if (!validateAmenities(amenities)) {
+            console.log(validateAmenities(amenities))
+            return res.status(400).json({ error: "Invalid amenities provided." });
+          }}
+          if (category!== undefined){
+            if (!validateCategory(category)) {
+                console.log(validateCategory(category))
+                return res.status(400).json({ error: "Invalid categories provided." });
+              }}
     try {
        
+        const newImages = req.files;
+        const existingImageCount = imageSrc.length;
+        if (newImages && existingImageCount + newImages.length > 5) {
+          return res.status(400).json({ error: "Exceeded the maximum limit of 5 images." });
+        }
+        const imagePaths = [];
 
-        const [error, house] = await houseController.updateHouse(id, title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
+        
+        if (newImages) {
+          for (const file of newImages) {
+            const imagePath = file.path; 
+            imagePaths.push(imagePath);
+          }
+        }
+
+        for (const existingImagePath of imageSrc) {
+          imagePaths.push(existingImagePath);
+        }
+    
+        const [error, house] = await houseController.updateHouse(id, title, description, imagePaths, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
 
         if (error) {
             return res.status(400).json({ error });
@@ -93,36 +121,75 @@ const updateHouse = async (req, res) => {
 };
 
 
+
 const removeHouse = async (req, res) => {
     const { id } = req.params;
-    
-
+  
     try {
-        const [error, house] = await houseController.removeHouse(id);
-
-        if (error) {
-            return res.status(404).json({ error: "No record found with that ID." });
+      
+      const [error, house] = await houseController.getHouseById(id);
+  
+      if (error) {
+        return res.status(404).json({ error: "No record found with that ID." });
+      }
+  
+     
+      const [removeError] = await houseController.removeHouse(id);
+  
+      if (removeError) {
+        return res.status(500).json({ error: "Error while removing the house." });
+      }
+  
+      
+      const imageSrc = house.imageSrc || [];
+      for (const imagePath of imageSrc) {
+        try {
+         
+          fs.unlinkSync(imagePath);
+          console.log(`File ${imagePath} deleted successfully.`);
+        } catch (unlinkError) {
+          console.error(`Error deleting file ${imagePath}: ${unlinkError.message}`);
         }
-
-        return res.status(200).json({ success: true, house });
+      }
+  
+      return res.status(200).json({ success: true, house });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Internal server error. Please try again later." });
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error. Please try again later." });
     }
-};
+  };
 
 const createHouse = async (req, res) => {
     
-    const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-    console.log("MENITIES BRO",amenities)
+    const { title, description, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
+   
    if (amenities!== undefined){
     if (!validateAmenities(amenities)) {
-        console.log(validateAmenities(amenities))
+       
         return res.status(400).json({ error: "Invalid amenities provided." });
       }}
+      if (category!== undefined){
+        if (!validateCategory(category)) {
+            
+            return res.status(400).json({ error: "Invalid categories provided." });
+          }}
+    if(roomCount>9){
+        return res.status(400).json({ error: "Rooms number must be lower than 9" });
+    }
+    if(bathroomCount>9){
+        return res.status(400).json({ error: "bathroom number must be lower than 9" });
+    }
+    if(guestCount>20){
+        return res.status(400).json({ error: "maximum number of guests reached" });
+    }
     try {
-       
-       const [error, house] = await houseController.createHouse(title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
+        const imagePaths = [];    
+        for (const file of req.files) {
+          const imagePath = file.path;  
+          imagePaths.push(imagePath);
+        }
+    
+       const [error, house] = await houseController.createHouse(title, description, imagePaths, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
 
         if (error) {
             return res.status(400).json({ error });
@@ -158,6 +225,19 @@ const validateAmenities = (amenitiesString) => {
 
     return true;
 };
+const validateCategory = (categoryvalues) => {
+    const categoryString = ['chalet', 'apartment', 'flat'];
+    const categoriesArray = categoryvalues.split(',');
+  
+    for (const cat of categoriesArray) {
+      const lowerCaseCat = cat.trim().toLowerCase();  
+      if (!categoryString.includes(lowerCaseCat)) {
+        return false;
+      }
+    }
+  
+    return true;
+  };
 export default {
     getAllHouses,
     getHousesById,

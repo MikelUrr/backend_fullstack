@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import houseApiController from '../controllers/houseController/houseApiController.js';
 import {isAuthenticatedApi} from '../middlewares/authMiddleware.js';
-
+import {housephotopload} from "./../middlewares/multerConfig.js"
 
 
 const router = Router();
 
 
 
-router.post('/', isAuthenticatedApi, (req, res) => {
+router.post('/',housephotopload.array('foto', 5), isAuthenticatedApi, (req, res) => {
     houseApiController.createHouse(req, res);
   });
 
