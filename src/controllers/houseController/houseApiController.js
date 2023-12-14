@@ -78,14 +78,23 @@ const updateHouse = async (req, res) => {
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
     if (amenities!== undefined){
         if (!validateAmenities(amenities)) {
-            console.log(validateAmenities(amenities))
+           
             return res.status(400).json({ error: "Invalid amenities provided." });
           }}
           if (category!== undefined){
             if (!validateCategory(category)) {
-                console.log(validateCategory(category))
+                
                 return res.status(400).json({ error: "Invalid categories provided." });
               }}
+        if(roomCount>9){
+            return res.status(400).json({ error: "Rooms number must be lower than 9" });
+        }
+        if(bathroomCount>9){
+            return res.status(400).json({ error: "bathroom number must be lower than 9" });
+        }
+        if(guestCount>20){
+            return res.status(400).json({ error: "maximum number of guests reached" });
+        }
     try {
        
         const newImages = req.files;
