@@ -76,12 +76,13 @@ const getHousesByUserId = async (req, res) => {
 const updateHouse = async (req, res) => {
     const id = req.params.id;
     const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-    if (amenities!== undefined){
+    if (amenities!== undefined && amenities!==""){
+      
         if (!validateAmenities(amenities)) {
            
             return res.status(400).json({ error: "Invalid amenities provided." });
           }}
-          if (category!== undefined){
+          if (category!== undefined && category!==""){
             if (!validateCategory(category)) {
                 
                 return res.status(400).json({ error: "Invalid categories provided." });
@@ -171,13 +172,14 @@ const removeHouse = async (req, res) => {
 const createHouse = async (req, res) => {
     
     const { title, description, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
-   
-   if (amenities!== undefined){
+    console.log(amenities)
+   if (amenities !== undefined && amenities !== ""){
+    console.log("no deberia estar aqui", amenities)
     if (!validateAmenities(amenities)) {
-       
+        
         return res.status(400).json({ error: "Invalid amenities provided." });
       }}
-      if (category!== undefined){
+      if (category!== undefined && category!==""){
         if (!validateCategory(category)) {
             
             return res.status(400).json({ error: "Invalid categories provided." });
@@ -192,6 +194,7 @@ const createHouse = async (req, res) => {
         return res.status(400).json({ error: "maximum number of guests reached" });
     }
     try {
+        
         const imagePaths = [];    
         for (const file of req.files) {
           const imagePath = file.path;  
@@ -219,6 +222,7 @@ const createHouse = async (req, res) => {
 };
 
 const validateAmenities = (amenitiesString) => {
+  
     const validAmenities = ['wifi', 'tv', 'swimming pool', 'bbq', 'garden', 'kitchen', 'parking', 'air conditioner', 'washer', 'hairdryer', 'iron', 'terrace'];
 
     

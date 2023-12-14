@@ -5,7 +5,7 @@ const isAuthenticatedApi = (req, res, next) => {
     try {
         console.log("cookies", req.headers.cookie);
         const cookie = req.headers.cookie;
-        console.log("dos", req.body);
+        console.log("dos", req.headers.cookie);
 
         if (!cookie) {
             return res.status(401).json({ error: "Authentication failed: No token found" });
