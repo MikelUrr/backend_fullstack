@@ -2,7 +2,8 @@ import citiesModel from "../../models/citiesModel.js"
 
 
 const getApiCities = async (req, res) => {
-    const busqueda = req.query.value;
+
+    const busqueda = req.query.value
     console.log(busqueda)
     try {
         const [error, cities] = await getCities(busqueda);
@@ -21,16 +22,9 @@ const getApiCities = async (req, res) => {
 const getCities = async (busqueda) =>{
     try {
         
-        const cities= await citiesModel.find({ name: new RegExp(busqueda, 'i') });
-        console.log(typeof cities[0].pop)
-        const resultCities = cities.sort((a, b) => {
-            const popA = Number(a.pop);
-            const popB = Number(b.pop);
-            return popB - popA;
-          });
-
-
-        return [null, resultCities];
+        const cities = await citiesModel.find({ name: new RegExp(`^${busqueda}`, 'i') }).sort('pop').limit(25)
+        
+        return [null, cities];
     } catch (error) {
         console.error(error);
         return [error.message, null];
