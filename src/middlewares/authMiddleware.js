@@ -18,10 +18,11 @@ const isAuthenticatedApi = (req, res, next) => {
             return res.status(401).json({ error: "Authentication failed: Invalid token" });
         }
 
-        const { emai, id } = jwt.verify(token, process.env.JWT_SECRET);
+        const { email, id } = jwt.verify(token, process.env.JWT_SECRET);
         console.log("uno", email);
-     req.user= {email, userId}
+    
         req.email = email;
+        req.id=id
         next();
     } catch (error) {
         console.error("Error in authentication:", error);
