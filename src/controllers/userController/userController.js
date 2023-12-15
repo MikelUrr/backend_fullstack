@@ -57,57 +57,77 @@ const updateUser = async (id, firstName, lastName, email, password, phoneNumber,
     }
 
     try {
-      
-    
-        const existingUser = await UserModel.findOne({ email: email, _id: { $ne: id } });
-        if (existingUser) {
-            const error = "Email is already in use by another user.";
+        let existingUser = await UserModel.findOne({ email: email});
+
+        if (!existingUser) {
+            const error = "User not found";
             return [error, null];
         }
-     if (!firstName){
-        existingUser.firstName = firstName;
-        
-     } else {
-        existingUser.firstName =existingUser.firstName
-     }
-        
-     existingUser.lastName = lastName;
-     existingUser.email = email;
+
+        if (!firstName && firstName !== "") {
+            existingUser.firstName = firstName;
+        }
+
+        existingUser.lastName = lastName;
+        existingUser.email = email;
 
         if (password !== "") {
             existingUser.password = password;
-        } else {
-            existingUser.password = existingUser.password;
         }
-        if (phoneNumber !== undefined){
+
+        if (phoneNumber !== undefined && phoneNumber !== "") {
             existingUser.phoneNumber = phoneNumber;
-    }  else {
-        existingUser.phoneNumber =existingUser.phoneNumber
-    }
-     if (image !== ""){
-        existingUser.image = image;
-     } else {
-        existingUser.image=user.image
-     }
-
-     if (userActive !== undefined){
-        existingUser.userActive = userActive;
-     } else {
-        existingUser.userActive= user.userActive
-     }
-        if (userType != [""]){
-            existingUser.userType = userType;
-        } else {
-            existingUser.userType =  user.userType
         }
-        
-        await user.save();
 
-        return [null, user];
+        if (image !== "") {
+            existingUser.image = image;
+        }
+
+        if (userActive !== undefined) {
+            existingUser.userActive = userActive;
+        }
+
+        if (userType !== undefined && userType.length !== 0) {
+            existingUser.userType = userType;
+        }
+
+        await existingUser.save();
+
+        return [existingUser];
     } catch (error) {
         console.error(error);
         return [error.message, null];
     }
+};
+
+
+
+
+const deactivateUser = async (id, userActive) => {
+  if (id === undefined) {
+    const error = "Invalid ID";
+    return [error, null];
+  }
+
+  try {
+    const existingUser = await UserModel.findById(id);
+
+    if (!existingUser) {
+      const error = "User not found";
+      return [error, null];
+    }
+
+    
+
+    existingUser.userActive = userActive !== undefined ? userActive : existingUser.userActive;
+
+    await existingUser.save();
+
+    return [null, existingUser];
+  } catch (error) {
+    console.error(error);
+    return [error.message, null];
+  }
 };
 
 
@@ -155,6 +175,15 @@ const updateUserType = async (id, userType) => {
     }
 };
 
+const getUserByEmail = async (email) => {
+    try {
+      const user = await UserModel.findOne({ email: email }).exec();
+      return [null, user];
+    } catch (error) {
+      console.error(error);
+      return [error.message, null];
+    }
+  };
 
 
 export default {
@@ -163,7 +192,9 @@ export default {
     updateUser,
     removeUser,
     createUser,
-    updateUserType
+    updateUserType,
+    deactivateUser,
+    getUserByEmail
 };
 
 export  {
@@ -172,5 +203,7 @@ export  {
     updateUser,
     removeUser,
     createUser,
-    updateUserType
+    updateUserType,
+    deactivateUser,
+    getUserByEmail
 }

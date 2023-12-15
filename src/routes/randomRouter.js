@@ -9,12 +9,12 @@ const router = Router();
 
 
   
-  router.get('/houses', (req, res) => {
+  router.get('/houses',(req, res) => {
     houseApiController.getRandomHouses(req, res);
   });
 
 
-  router.get('/cities', (req, res) => {
+  router.get('/cities',(req, res) => {
     getApiCities(req, res);
   });
 

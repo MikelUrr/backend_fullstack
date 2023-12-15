@@ -25,7 +25,7 @@ const requestReservation = async (req, res) => {
     
   
     const resultHouses = availableHouses.filter((house) => {
-        console.log(house);
+       
         const locationArray = house.locationValue.split(',').map(coord => parseFloat(coord.trim()));
       
     
@@ -45,12 +45,12 @@ const requestReservation = async (req, res) => {
         const days = calculateDiffBetweenDays(startDate, endDate);
         const element=   { ...originalelement._doc }; 
         element.days = days;
-        console.log("diaaaas", element.days);
+        element.startDate= startDate
+        element.endDate= endDate
+        element.guestUserid= req.id
         
-        
-    
         let price = element.price * days;
-    
+        element.originalPrice= element.price
         const month = new Date(startDate).getMonth() + 1;
     
         if (month === 8) {
@@ -65,11 +65,11 @@ const requestReservation = async (req, res) => {
     
         element.price = price;
     
-        console.log("todoooo", element);
+        
         return element;
     }));
     
-    console.log("Final Result", finalResult);
+    
     
   
     res.status(200).json({ Result: finalResult, session: req.session });
