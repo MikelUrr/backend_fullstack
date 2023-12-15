@@ -74,8 +74,9 @@ const getHousesByUserId = async (req, res) => {
 
 
 const updateHouse = async (req, res) => {
+    const userId= req.user.id
     const id = req.params.id;
-    const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
+    const { title, description, imageSrc, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price} = req.body;
     if (amenities!== undefined && amenities!==""){
       
         if (!validateAmenities(amenities)) {
@@ -170,8 +171,9 @@ const removeHouse = async (req, res) => {
   };
 
 const createHouse = async (req, res) => {
-    
-    const { title, description, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId } = req.body;
+
+    const userId= req.user.id
+    const { title, description, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price } = req.body;
     console.log(amenities)
    if (amenities !== undefined && amenities !== ""){
     console.log("no deberia estar aqui", amenities)
