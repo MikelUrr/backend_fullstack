@@ -45,6 +45,10 @@ const houseSchema = new mongoose.Schema({
       price: {
         type: Number,
       },
+      reservationsEnabled: {
+        type: Boolean,
+        default: true,
+      },
       userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user', 

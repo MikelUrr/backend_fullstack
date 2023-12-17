@@ -51,5 +51,6 @@ router.delete('/:id/delete', isAuthenticatedApi,(req, res) => {
     reservationsApiController.getReservationByhouseId(req, res);
   });
 
+  
 
   export default router;
