@@ -88,15 +88,16 @@ const updateHouse = async (req, res) => {
                 
                 return res.status(400).json({ error: "Invalid categories provided." });
               }}
-        if(roomCount>9){
+        if(roomCount&&roomCount>9){
             return res.status(400).json({ error: "Rooms number must be lower than 9" });
         }
-        if(bathroomCount>9){
+        if(bathroomCount&&bathroomCount>9){
             return res.status(400).json({ error: "bathroom number must be lower than 9" });
         }
-        if(guestCount>20){
+        if(bathroomCount&&guestCount>20){
             return res.status(400).json({ error: "maximum number of guests reached" });
         }
+        
     try {
        
         const newImages = req.files;
@@ -176,7 +177,7 @@ const createHouse = async (req, res) => {
     const { title, description, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price } = req.body;
     console.log(amenities)
    if (amenities !== undefined && amenities !== ""){
-    console.log("no deberia estar aqui", amenities)
+   
     if (!validateAmenities(amenities)) {
         
         return res.status(400).json({ error: "Invalid amenities provided." });
@@ -213,7 +214,7 @@ const createHouse = async (req, res) => {
             
             const [error, user]= await userController.updateUserType(userId,userType)
 
-            user? console.log ("okkk", user.userType): console.log("error")
+            
         }
 
         res.status(201).json({ message: "House created successfully", house });
@@ -233,7 +234,6 @@ const validateAmenities = (amenitiesString) => {
     for (const amenity of amenitiesArray) {
         const lowerCaseAmenity = amenity.trim().toLowerCase();  
         if (!validAmenities.includes(lowerCaseAmenity)) {
-            
             return false;
         }
     }

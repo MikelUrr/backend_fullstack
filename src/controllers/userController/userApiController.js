@@ -22,14 +22,14 @@ const getHousesByUserId = async (req, res) => {
 }
 
 
-const  getAllUsers = async (req, res) =>{
+const getAllUsers = async (req, res) => {
     try {
         const errorMessage = req.query.error;
         const [error, users] = await userController.getAllUsers();
         if (error) {
             return res.status(500).json({ error: error });
         }
-        
+
         res.status(200).json({ users, errorMessage, session: req.session });
     } catch (error) {
         console.error(error);
@@ -55,7 +55,7 @@ const getusersById = async (req, res) => {
 const updateUser = async (req, res) => {
     const id = req.params.id;
     const { firstName, lastName, email, password, confirmPassword, phoneNumber, userActive, userType } = req.body;
-    
+
     try {
         const imageFilePath = req.file ? `/images/blog/${req.file.filename}` : undefined;
         let imageBase64 = null;
@@ -72,22 +72,46 @@ const updateUser = async (req, res) => {
         if (password && password !== confirmPassword) {
             return res.status(400).json({ error: "Password and confirmation do not match." });
         }
+        if (password) {
+            if (!isSecurePassword(password)) {
+                return res.status(400).json({ error: "Contraseña no segura" });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const [error, user] = await userController.updateUser(id, firstName, lastName, email, hashedPassword, phoneNumber, imageBase64, userActive, userType);
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const [error, user] = await userController.updateUser(id, firstName, lastName, email, hashedPassword, phoneNumber, imageBase64, userActive, userType);
+            if (error) {
+                return res.status(400).json({ error });
+            }
 
-        if (error) {
-            return res.status(400).json({ error });
+            res.status(200).json({ message: "User updated successfully", user });
         }
 
-        res.status(200).json({ message: "User updated successfully", user });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Internal server error. Please try again later." });
     }
 };
+const deactivateUser = async (req, res) => {
+    const id = req.id;
+    const { userActive } = req.body;
 
+    try {
+        if (!userActive) {
+            return res.status(400).json({ error: "Error please enter a valid UserActive param" });
+        }
+        const [error, user] = await userController.deactivateUser(id, userActive);
 
+        if (error) {
+            return res.status(400).json({ error });
+        }
+
+        res.status(200).json({ message: "User state updated successfully" });
+    } catch (error) {
+
+    }
+
+}
 const removeUser = async (req, res) => {
     const { id } = req.body;
 
@@ -106,40 +130,80 @@ const removeUser = async (req, res) => {
 };
 
 
+
+
 const createUser = async (req, res) => {
-   
-    const { firstName, lastName, email, password, confirmPassword, phoneNumber, userActive, userType } = req.body;
-    
+    const { firstName, lastName, email, password, confirmPassword, phoneNumber, userType } = req.body;
+
     try {
         let imageBase64 = null;
 
         if (req.file) {
-            // Read the image file and convert it to base64
-            const imageData = fs.readFileSync(path.join(__dirname, "/img/profile/" + req.file.filename));
+            // Read the image file and convert it to base64 asynchronously
+            const imageData = await fs.promises.readFile(path.join(__dirname, "/img/profile/" + req.file.filename));
             imageBase64 = Buffer.from(imageData).toString('base64');
 
             // Delete the image file
             fs.unlinkSync(path.join(__dirname, "/img/profile/" + req.file.filename));
         } else {
-            imageBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD5ElEQVR4nO3Z708TdxwH8Ps/tidbnMkeiNEtPfDJsjVtr6W9o9CCRgdMEBDtLSyKeNkoGHjmj6jJSFziDxwLTIhC1GLBNWXZ/JUYoH1iMpIte7AF62XOjdJu2Xv5fuWa1ra0lV57l/BJ3sld73vt59XvXZr7lmE2a7PUKYPZuZ3Ra7FmftBg5v+tNPN7GT02z1oEkOgOUcXxO0jTCoAiLMI/rFloYPRSBo5306aTECS25k64RKn08Uh/ukRpolb8/J28AE5P95vW5oMvWK4GmkGIEuo8x5+5u6Q3cgLqROkaOaFDOoEqW20KoMrqxMTULciyXLIs/fwL+s5/pUDGcgLWpoyeOOm7g10aQbjILIjSH7kBa1OmnKwVhGutr4IBWkG4NgIg2Xb2O7DWVISBc6LitB/v3l4peuRiA8iblhIhqwEoJUIuNsAxtwLHXBQfBaLYcT4zYucZPz1OxtrnojAGoqiYzt5kx70F/L48gN+eDqDt3qK6AOH7aCKkuQ+GAmkIlnPC8uVM2tgKX3rz26dXsBwZAJ530yxHBlPGqQpQYrmQH6I6+BJiD0bxYSCK9/wvZyiSBHgaGaQzTF4nM1gSQCGITOmfX6QI0jzZTj6mKoAP/ArTSCtM37TS7Y0ghCxRDzC3AvPYERgvW2hqxj+DN7SKlqvBjIiPL86iNxRHbyiGrscx1P9QJkDPQhzecBxN/tFE80pa746iPxxH+0gQla8gKjkn2oZn6XESAml5uIpj8zEK616IofH+aqLxxvtReqzoAPLh3Y9+gmnYkQYwDdtx9OETOqYjD0SmeMNx+iUp+0UHeBf/Bj/Wnta8EsdYK3pDf2VFsJyAlks31kX0h1UENPqGsjavpMk3lGggG6JteKY8AOMVLieAjOn68VGiid0XToG1pj7VkSe9Vy+n3oVlHAr0ozNwgm6rA8jV/FpsI3vwxfwz9DxeAj/phulkTQZE0j0RisETPIO2mU4aT/AU+sKr5QOQ1E/2wX3rU9iv19Cshzj6YDrRvJIjD6bLCyDhvnUkAOsh6s/tTwO0z4rlB5D7oXpCyAMhwH2uOQ1RfgD5ffjamgIoBCFrAUAvpVH7ayFkrQCMVyywjfMFI2TNAMildJWD/bpQEEIuNkCtTPn8GZdsxqdu6gMg54nIG1AnHn+uLC1qBbFU4NLiBBlMFlS1gjhwzKsAruUENBzq2eoSpchGl8NfN7ZPDiPT0r61qeOFu6tnC5NPkXV4spStXE5aQBjIP0ecYx+jl2LNQkP6P0V8/H1j7duMXspg4l1JiP9YTuhk9FYGE+8i37wum1fKYHK8ldjZrM1iilr/A/fHEr4K4AtdAAAAAElFTkSuQmCC';
+            imageBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD5El...';
         }
 
         if (password && password !== confirmPassword) {
             return res.status(400).json({ error: "La contraseña y la confirmación no coinciden." });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const [error, user] = await userController.createUser(firstName, lastName, email, hashedPassword, phoneNumber, imageBase64, userActive, userType);
+        if (!isSecurePassword(password)) {
+            return res.status(400).json({ error: "Contraseña no segura" });
+        }
 
+        if (!isEmailValid(email)) {
+            return res.status(400).json({ error: "Formato de email no valido" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [errorexisting, existinguser] = await userController.getUserByEmail(email);
+
+        if (existinguser) {
+            if (existinguser.userActive === false) {
+               
+                const userActive = true;
+                const user = await userController.updateUser(existinguser._id, firstName, lastName, email, hashedPassword, phoneNumber, imageBase64, userActive, userType);
+                return res.status(201).json({ message: "User created successfully", user });
+            }
+        }
+
+        
+        const [error, user] = await userController.createUser(firstName, lastName, email, hashedPassword, phoneNumber, imageBase64, userType);
+        
         if (error) {
             return res.status(400).json({ error });
         }
+        
+        return res.status(201).json({ message: "User created successfully", user });
 
-        res.status(201).json({ message: "User created successfully", user });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Internal server error. Please try again later." });
     }
+};
+
+const isSecurePassword = (password) => {
+    // Requisitos
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasSymbol = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password);
+
+    // Validación
+    const isValidLength = password.length >= minLength;
+    const isValidPassword = isValidLength && hasUpperCase && hasLowerCase && hasSymbol;
+
+    return isValidPassword;
+};
+const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 };
 
 
@@ -149,5 +213,6 @@ export default {
     updateUser,
     removeUser,
     createUser,
-    getHousesByUserId
+    getHousesByUserId,
+    deactivateUser
 };

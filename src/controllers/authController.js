@@ -7,20 +7,25 @@ dotenv.config();
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body; // Change from username to email
+        const { email, password } = req.body; 
         
         const oldUser = await UserModel.findOne({ email }); // Change here
         if (!oldUser) {
             res.status(404).send("User does not exist");
             return;
         }
+        if(oldUser.userActive===false){
+            res.status(404).send("User does not exist");
+            return;
+        }
+        console.log("holaaa")
         const isPasswordCorrect = await bcrypt.compare(password, oldUser.password);
         if (!isPasswordCorrect) {
             res.status(400).send("Invalid credentials");
             return;
         }
         const token = Jwt.sign(
-            { email: oldUser.email, id: oldUser._id }, // Change from username to email
+            { email: oldUser.email, id: oldUser._id }, 
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );

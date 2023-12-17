@@ -9,7 +9,7 @@ const router = Router();
 
 
 
-router.post('/', photoUpload.single('foto'), isAuthenticatedApi,(req, res) => {
+router.post('/', photoUpload.single('foto'),(req, res) => {
     userApiController.createUser(req, res);
   });
 
@@ -20,6 +20,9 @@ router.delete('/:id/delete', isAuthenticatedApi,(req, res) => {
 
   router.put('/:id', photoUpload.single('foto'), isAuthenticatedApi, (req, res) => {
     userApiController.updateUser(req, res);
+  });
+  router.post('/useractive', isAuthenticatedApi, (req, res) => {
+    userApiController.deactivateUser(req, res);
   });
 //con este get /user/id obtienes todos los datos de usuario
   router.get('/:id', isAuthenticatedApi,(req, res) => {
