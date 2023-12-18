@@ -94,6 +94,8 @@ const updateHouse = async (id, title, description, imageSrc, category, roomCount
         house.amenities = amenities || house.amenities;
         house.price = price || house.price;
         house.userId = userId || house.userId;
+        house.reservationsEnabled = reservationsEnabled || house.reservationsEnabled;
+      
 
         await house.save();
 
@@ -103,7 +105,35 @@ const updateHouse = async (id, title, description, imageSrc, category, roomCount
         return [error.message, null];
     }
 };
+const updatestate = async (id, reservationsEnabled) => {
+    if (id === undefined) {
+        const error = "Invalid ID";
+        return [error, null];
+    }
 
+    try {
+        const house = await houseModel.findById(id);
+
+        if (!house) {
+            const error = "House with the provided ID has not been found";
+            return [error, null];
+        }
+
+       
+
+      
+        
+        house.reservationsEnabled = reservationsEnabled || house.reservationsEnabled;
+      
+
+        await house.save();
+
+        return [null, house];
+    } catch (error) {
+        console.error(error);
+        return [error.message, null];
+    }
+};
 const removeHouse = async (id) => {
     try {
         const house = await houseModel.findById(id);
@@ -131,5 +161,6 @@ export default {
     getHousesByUserId,
     createHouse,
     updateHouse,
-    removeHouse
+    removeHouse,
+    updatestate
 }

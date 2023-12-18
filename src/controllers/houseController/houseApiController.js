@@ -132,7 +132,25 @@ const updateHouse = async (req, res) => {
     }
 };
 
+const stopReservations = async (req, res) => {
+const reservationsEnabled= req.query.reservations
+const id= req.query.houseid
+console.log(reservationsEnabled)
+try {
+    const [error, house] = await houseController.updatestate(id, reservationsEnabled);
 
+    if (error) {
+        return res.status(400).json({ error });
+    }
+
+    res.status(200).json({ message: "House updated successfully", house });
+    
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error. Please try again later." });
+}
+
+}
 
 const removeHouse = async (req, res) => {
     const { id } = req.params;
@@ -260,5 +278,6 @@ export default {
     updateHouse,
     removeHouse,
     getHousesByUserId,
-    getRandomHouses
+    getRandomHouses,
+    stopReservations
 }

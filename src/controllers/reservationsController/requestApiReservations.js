@@ -14,12 +14,11 @@ const requestReservation = async (req, res) => {
     const [error1, houses] = await houseController.getAllHouses();
   
     const availableHouses = houses.filter((house) => {
-      const isHouseAvailable = !overlappingReservations.some((reservation) => reservation.houseId.equals(house._id));
-      const isGuestCountValid = house.guestCount >= guestCount;
-  const isUserid= house.userId!==id;
-      return isHouseAvailable && isGuestCountValid&&isUserid;
-    });
- 
+        const isHouseAvailable = house.reservationsEnabled && !overlappingReservations.some((reservation) => reservation.houseId.equals(house._id));
+        const isGuestCountValid = house.guestCount >= guestCount;
+        const isUserid = house.userId !== id;
+        return isHouseAvailable && isGuestCountValid && isUserid;
+      });
     const maxdist = 20;
     
     

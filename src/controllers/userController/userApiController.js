@@ -188,6 +188,26 @@ const createUser = async (req, res) => {
     }
 };
 
+const getUsersessionId = async (req, res) => {
+    try {
+        const id = req.id;
+        console.log("IDIIIII",id, req.params, req.id, req.email)
+
+        if (!id) {
+            // Si no se obtiene un id, responder con un error 400 (Bad Request)
+            return res.status(400).json({ error: "User id not provided" });
+        }
+
+        // Aquí puedes continuar con el resto del código para manejar el escenario exitoso
+
+        res.status(200).json({ message: "User credentials", id });
+    } catch (error) {
+        console.error("Error retrieving user credentials:", error);
+        // Si hay un error, responder con un error 500 (Internal Server Error)
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 const isSecurePassword = (password) => {
     // Requisitos
     const minLength = 8;
@@ -214,5 +234,6 @@ export default {
     removeUser,
     createUser,
     getHousesByUserId,
-    deactivateUser
+    deactivateUser,
+    getUsersessionId
 };
