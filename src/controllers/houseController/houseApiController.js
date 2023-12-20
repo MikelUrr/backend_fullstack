@@ -216,10 +216,15 @@ const createHouse = async (req, res) => {
     }
     try {
         
-        const imagePaths = [];    
+        const imagePaths = [];
+
         for (const file of req.files) {
-          const imagePath = file.path;  
-          imagePaths.push(imagePath);
+        const imagePath = file.path;
+
+        // Quita "img/" de la ruta de la imagen
+        const modifiedImagePath = imagePath.replace(/^img\//, '');
+
+        imagePaths.push(modifiedImagePath);
         }
     
        const [error, house] = await houseController.createHouse(title, description, imagePaths, category, roomCount, bathroomCount, guestCount, locationValue, amenities, price, userId);
